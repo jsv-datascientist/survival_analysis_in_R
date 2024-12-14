@@ -1,0 +1,364 @@
+---
+title: "Churn"
+output: html_document
+date: "2024-12-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+setwd("C:/Users/User/OneDrive/Desktop/DSTI/SA Assignment")
+health_data <- read.csv("cancer.csv")
+head(health_data)
+```
+```{r}
+str(health_data)
+```
+
+```{r}
+
+health_data$ph.ecog <- as.factor(health_data$ph.ecog)
+health_data$sex <- as.factor(health_data$sex)
+str(health_data$status)
+```
+
+
+```{r}
+# Display distinct values in the column
+nrow(health_data)
+
+# Check for missing values in each column
+colSums(is.na(health_data))
+
+library(naniar)
+
+vis_miss(health_data)  # Heatmap of missing values
+
+
+```
+
+```{r}
+
+# Recode 'status' to 0 and 1
+health_data$status <- ifelse(health_data$status == 2, 1, 0)
+
+```
+
+install.packages("survival")
+install.packages("survminer")
+install.packages("devtools")
+library(devtools)
+devtools::install_github("modelplot/modelplotr")
+
+install.packages("epiDisplay")
+
+
+```{r}
+library("survival")
+library("survminer")
+library("modelplotr")
+```
+
+
+
+```{r}
+summary(health_data)
+```
+
+
+
+`
+
+```{r}
+# Fit the GLM model (logistic regression)
+glm_model <- glm(status ~ ., family = binomial, data = health_data)
+
+# Summarize the model
+summary(glm_model)
+
+```
+# Nonparametric Estimation (Kaplan-Meier):
+
+Suitable for survival function estimation.
+
+```{r}
+# Create survival object
+surv_object = Surv(health_data$time, health_data$status)
+
+km_fit <- survfit( surv_object ~ 1,data=health_data)
+
+plot(km_fit, col = "blue", xlab = "Time", ylab = "Survival Probability",
+     main = "Kaplan-Meier Survival Curve")
+```
+
+The survival probability drops below 20%, meaning most individuals have experienced the event ( death)
+
+
+```{r}
+km_sex_fit <- survfit( surv_object ~ sex, data=health_data)
+
+plot(km_sex_fit, col = c("blue", "red"), xlab = "Time", ylab = "Survival Probability",
+     main = "Kaplan-Meier Survival Curves by Sex")
+legend("bottomleft", legend = c("Male", "Female"), col = c("blue", "red"), lty = 1)
+
+```
+
+
+Over the time , The survival probability for females (red) is higher than for males at most points in time.
+This suggests that females tend to survive longer than males in the dataset.
+
+
+```{r}
+# List of variables to analyze (you can exclude unnecessary ones)
+variables <- c("age", "ph.ecog", "ph.karno", "pat.karno")
+
+# Perform Kaplan-Meier for each variable
+for (var in variables) {
+  # Fit Kaplan-Meier model
+  formula <- as.formula(paste("surv_object ~", var))
+  km_fit <- survfit(formula, data = health_data)
+  
+  # Plot the Kaplan-Meier survival curves
+  plot(km_fit, col = rainbow(length(km_fit$strata)),
+       xlab = "Time", ylab = "Survival Probability",
+       main = paste("Kaplan-Meier Survival Curves by", var))
+  
+  legend("bottomleft", legend = names(km_fit$strata),
+         col = rainbow(length(km_fit$strata)), lty = 1)
+}
+
+```
+
+
+
+
+# Nonparametric Comparison (Log-Rank): 
+
+Tests for differences between survival distributions.
+
+```{r}
+log_rank = survdiff(Surv(time, status) ~ sex, rho=0, data=health_data)
+
+print(log_rank)
+```
+A p-value below 0.05 indicates that the difference in survival between the groups is statistically significant
+
+
+
+
+
+# Semi-Parametric Model - Cox Regression: 
+
+Evaluates covariates' effects while assuming proportional hazard
+
+```{r}
+cox = coxph(Surv(time, status) ~ sex, data=health_data)
+summary(cox)
+```
+
+
+
+
+```{r}
+# Fit a Cox Proportional Hazards model
+cox_model <- coxph(Surv(time, status) ~ age + sex, data = health_data)
+
+# Summary of the Cox model
+summary(cox_model)
+
+# Visualize the Cox model results (Hazard Ratios)
+plot(cox.zph(cox_model))  # Test proportional hazards assumption
+
+```
+
+
+
+
+```{r}
+
+
+```
+
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+```{r}
+cox = coxph()
+```
+
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
+
+
+```{r}
+```
+
+
